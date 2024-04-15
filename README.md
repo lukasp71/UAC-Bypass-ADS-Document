@@ -15,6 +15,14 @@ Windows User Account Control (UAC) permits a program to increase its privileges 
 Adversaries may attempt to bypass or manipulate UAC mechanisms in order to escalate their prviledge without the need for a password or without the UAC popup showing on the machine.
 
 # Blind Spots and Asssumptions
+This strategy relies on the following assumptions:
+
+* The ADS assumes that PowerShell logging is enabled and configured appropriately on monitored systems. If PowerShell logging is disabled or logs are not centrally collected, the ADS may not have sufficient visibility to detect UAC bypass attempts
+
+A blind spot will occur if any of the assumptions are violated. For instance, the following would not trip the alert:
+
+* If adversaries employ fileless UAC bypass techniques that do not involve executing external binaries like fodhelper.exe, the ADS may not detect these attempts.
+* Adversaries may obfuscate PowerShell commands to evade detection by the ADS, potentially bypassing its monitoring capabilities
 
 # False Positives
 Legitimate administrative tasks involving the creation of the specified registry key and execution of fodhelper.exe may trigger false positives.
@@ -25,11 +33,9 @@ High: Any attempt to bypass UAC poses a significant security risk and warrants i
 # Validation
 
 # Response
-Investigate the system where the alert fired to determine the legitimacy of the activity.
-
-Identify the source of the PowerShell commands and assess the intent behind the UAC bypass attempt.
-
-Remediate any unauthorized activity and strengthen security controls to prevent future bypass attempts.
+* Investigate the system where the alert fired to determine the legitimacy of the activity.
+* Identify the source of the PowerShell commands and assess the intent behind the UAC bypass attempt.
+* Remediate any unauthorized activity and strengthen security controls to prevent future bypass attempts.
 
 
 # Additional Resources
