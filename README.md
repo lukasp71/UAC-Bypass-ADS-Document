@@ -1,18 +1,25 @@
 # Goal
-The goal of this report is to provide comprehensive detection strategies and recommendations for detecting attempts by adversaries to bypass User Access Control (UAC) mechanisms on Windows systems.
+To detect attempts by adversaries to bypass User Access Control (UAC) mechanisms on Windows systems.
 
 # Categorization
 This technique is categorized as Privilege Escalation and Defense Evasion within the MITRE ATT&CK framework.
 
 # Strategy Abstract
-The specific UAC bypass technqiue we are looking to detect in one that uses PowerShell code to bypass User Account Control using the Windows 10 Features on Demand Helper (fodhelper.exe)
-
-In order to detect this technqiue I will create a YARA rules to detect specific patterns in files or processes, including PowerShell scripts or text files containing the Powershell logs. 
+In order to detect this technqiue a YARA rule will be made to detect specific patterns in files or processes, including PowerShell scripts or text files containing the Powershell logs. 
 
 # Technical Content
 Windows User Account Control (UAC) permits a program to increase its privileges in order to execute a task with higher level permissions. One way a system might do this is to prompt a user for confirmation, such as through a popup on the system.
 
 Adversaries may attempt to bypass or manipulate UAC mechanisms in order to escalate their prviledge without the need for a password or without the UAC popup showing on the machine.
+
+The specific UAC bypass technqiue we are looking to detect is one that uses PowerShell code to bypass User Account Control using the Windows 10 Features on Demand Helper (fodhelper.exe)
+
+```
+New-Item "HKCU:\software\classes\ms-settings\shell\open\command" -Force
+New-ItemProperty -Path "HKCU:\software\classes\ms-settings\shell\open\command" -Name "DelegateExecute" -Value "" -Force
+Set-ItemProperty -Path "HKCU:\software\classes\ms-settings\shell\open\command" -Name "(default)" -Value "C:\Users\User\Desktop\123.exe" -Force
+Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
+```
 
 # Blind Spots and Asssumptions
 This strategy relies on the following assumptions:
@@ -31,6 +38,18 @@ Legitimate administrative tasks involving the creation of the specified registry
 High: Any attempt to bypass UAC poses a significant security risk and warrants immediate investigation.
 
 # Validation
+
+```
+rule detect_UAC_bypass {
+    strings:
+        $exe_binary = "C:\\Windows\\System32\\fodhelper.exe"
+        $reg_key = "HKCU:\\software\\classes\\ms-settings\\shell\\open\\command"
+        $cmd_content = "New-Item"
+        $ps_content = "Start-Process"
+    condition:
+        all of ($cmd_content, $ps_content, $exe_binary, $reg_key)
+}
+```
 
 # Response
 * Investigate the system where the alert fired to determine the legitimacy of the activity.
