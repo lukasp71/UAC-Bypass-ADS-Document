@@ -36,7 +36,7 @@ This command sets the value of the default property (default) under the ms-setti
 ```
 Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
 ```
-Finally fodhelper.exe is launched which triggers 123.exe to execute with elevated privileges. The -WindowStyle Hidden parameter ensures that the fodhelper utility window is hidden from view when it is executed.
+Finally, fodhelper.exe is launched which triggers 123.exe to execute with elevated privileges. The -WindowStyle Hidden parameter ensures that the fodhelper utility window is hidden from view when it is executed.
 
 
 # Blind Spots and Asssumptions
