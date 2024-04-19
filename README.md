@@ -1,18 +1,16 @@
 # Goal
-To detect attempts by adversaries to bypass User Access Control (UAC) mechanisms on Windows systems.
+Detect attempts to bypass User Account Control (UAC) using the fodhelper.exe utility.
 
 # Categorization
 This technique is categorized as Privilege Escalation and Defense Evasion within the MITRE ATT&CK framework.
 
 # Strategy Abstract
-In order to detect this technqiue a YARA rule will be made to detect specific patterns in files or processes, including PowerShell scripts or text files containing the Powershell logs. 
+The strategy aims to identify unauthorized modifications to critical registry keys associated with the fodhelper.exe utility, indicating potential attempts to bypass User Account Control (UAC) restrictions. It leverages Sysmon logs forwarded to Splunk for analysis.
 
 # Technical Content
-Windows User Account Control (UAC) permits a program to increase its privileges in order to execute a task with higher level permissions. One way a system might do this is to prompt a user for confirmation, such as through a popup on the system.
+The fodhelper.exe utility is a legitimate Windows binary used for managing optional features in Windows. Attackers exploit this utility by manipulating specific registry keys to execute arbitrary code with elevated privileges, bypassing UAC restrictions. The alert monitors for changes to the HKCU:\Software\Classes\ms-settings\shell\open\command registry key, commonly abused by attackers for UAC bypass techniques.
 
-Adversaries may attempt to bypass or manipulate UAC mechanisms in order to escalate their prviledge without the need for a password or without the UAC popup showing on the machine.
-
-The specific UAC bypass technqiue we are looking to detect is one that uses PowerShell code to bypass User Account Control using the Windows 10 Features on Demand Helper (fodhelper.exe)
+Below is an example of some powershell commands an adversary might execute in order to do this.
 
 ```
 New-Item "HKCU:\software\classes\ms-settings\shell\open\command" -Force
@@ -24,7 +22,7 @@ Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
 # Blind Spots and Asssumptions
 This strategy relies on the following assumptions:
 
-* The ADS assumes that PowerShell logging is enabled and configured appropriately on monitored systems. If PowerShell logging is disabled or logs are not centrally collected, the ADS may not have sufficient visibility to detect UAC bypass attempts
+* There is proper functioning of endpoint detection tooling, correct forwarding of logs to Splunk, and successful indexing of logs by the SIEM
 
 A blind spot will occur if any of the assumptions are violated. For instance, the following would not trip the alert:
 
@@ -32,29 +30,22 @@ A blind spot will occur if any of the assumptions are violated. For instance, th
 * Adversaries may obfuscate PowerShell commands to evade detection by the ADS, potentially bypassing its monitoring capabilities
 
 # False Positives
-Legitimate administrative tasks involving the creation of the specified registry key and execution of fodhelper.exe may trigger false positives.
+False positives may occur due to legitimate changes by system administrators or software updates that modify the monitored registry key.
 
 # Priority
-High: Any attempt to bypass UAC poses a significant security risk and warrants immediate investigation.
+High: Any attempt to bypass UAC poses a significant security risk and warrants immediate investigation as this means an adversary has already infiltrated the machine.
 
 # Validation
+Validation can occur for this technqiue by entering the following query into Splunk.
 
 ```
-rule detect_UAC_bypass {
-    strings:
-        $exe_binary = "C:\\Windows\\System32\\fodhelper.exe"
-        $reg_key = "HKCU:\\software\\classes\\ms-settings\\shell\\open\\command"
-        $cmd_content = "New-Item"
-        $ps_content = "Start-Process"
-    condition:
-        all of ($cmd_content, $ps_content, $exe_binary, $reg_key)
-}
+index="main" source="WinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=13 TargetObject ="HKCU\\Software\\Classes\\ms-settings\\shell\\open\\command"
 ```
 
 # Response
 * Investigate the system where the alert fired to determine the legitimacy of the activity.
 * Identify the source of the PowerShell commands and assess the intent behind the UAC bypass attempt.
-* Remediate any unauthorized activity and strengthen security controls to prevent future bypass attempts.
+* Identify what the point of entry for the adversary is and implement containment measures to prevent further compromise
 
 
 # Additional Resources
