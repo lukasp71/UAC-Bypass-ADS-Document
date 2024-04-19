@@ -10,14 +10,34 @@ The strategy aims to identify unauthorized modifications to critical registry ke
 # Technical Content
 The fodhelper.exe utility is a legitimate Windows binary used for managing optional features in Windows. Attackers exploit this utility by manipulating specific registry keys to execute arbitrary code with elevated privileges, bypassing UAC restrictions. The alert monitors for changes to the HKCU:\Software\Classes\ms-settings\shell\open\command registry key, commonly abused by attackers for UAC bypass techniques.
 
-Below is an example of some powershell commands an adversary might execute in order to do this.
+Below is an example of powershell commands an adversary might execute in order to bypass the UAC as well as an explanation for what each command is doing.
+
+```
+copy C:\Windows\System32\cmd.exe C:\Users\User\Desktop\123.exe
+```
+This command copies cmd.exe to a seperate folder with a different name, this is done because Windows Defender blocks any call of cmd.exe as a registry value
 
 ```
 New-Item "HKCU:\software\classes\ms-settings\shell\open\command" -Force
+```
+Here a new registry key is created named "ms-settings\shell\open\command" under the current user's hive (HKCU) in the Windows Registry. The -Force parameter ensures that the command creates the key even if it already exists. This key is commonly targeted because it allows an attacker to associate a custom executable with certain file types or actions.
+
+```
 New-ItemProperty -Path "HKCU:\software\classes\ms-settings\shell\open\command" -Name "DelegateExecute" -Value "" -Force
-Set-ItemProperty -Path "HKCU:\software\classes\ms-settings\shell\open\command" -Name "(default)" -Value "C:\Users\User\Desktop\123.exe" -Force
+```
+Next a new registry value is created named DelegateExecute under the ms-settings\shell\open\command registry key. Setting this property to an empty string effectively disables the use of the COM elevation moniker, which is a technique used by Windows to elevate privileges for certain actions.
+
+```
+Set-ItemProperty -Path "HKCU:\software\classes\ms-settings\shell\open\command" -Name "(default)" -Value "C:\Users\User\Desktop\123.exe"
 Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
 ```
+This command sets the value of the default property ((default)) under the ms-settings\shell\open\command registry key to the path of the previously created 123.exe file. By associating this file with the default command for opening certain types of files, this allows the attacker to launch the 123.exe executable with elevated privileges when fodhelper.exe is started.
+
+```
+Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
+```
+Finally the fodhelper.exe utility located in the C:\Windows\System32 directory is launched, which would trigger 123.exe to execute with elevated privileges. The -WindowStyle Hidden parameter ensures that the fodhelper utility window is hidden from view when it is executed.
+
 
 # Blind Spots and Asssumptions
 This strategy relies on the following assumptions:
@@ -26,7 +46,7 @@ This strategy relies on the following assumptions:
 
 A blind spot will occur if any of the assumptions are violated. For instance, the following would not trip the alert:
 
-* If adversaries employ fileless UAC bypass techniques that do not involve executing external binaries like fodhelper.exe, the ADS may not detect these attempts.
+* If adversaries employ fileless UAC bypass techniques that do not involve modifying Windows Registry keys, the ADS may not detect these attempts.
 * Adversaries may obfuscate PowerShell commands to evade detection by the ADS, potentially bypassing its monitoring capabilities
 
 # False Positives
