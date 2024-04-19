@@ -69,7 +69,7 @@ index="main" source="WinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode
 
 
 # Additional Resources
-“Abuse Elevation Control Mechanism: Bypass User Account Control.” Abuse Elevation Control Mechanism: Bypass User Account Control, Sub-Technique T1548.002 - Enterprise | MITRE ATT&CK®, 30 Jan. 2020, attack.mitre.org/techniques/T1548/002/. 
+“Abuse Elevation Control Mechanism: Bypass User Account Control.” Abuse Elevation Control Mechanism: Bypass User Account Control, Sub-Technique T1548.002 - Enterprise | MITRE ATT&CK®, 30 Jan. 2020, attack.mitre.org/techniques/T1548/002/ 
 
 “Earth Lusca.” Earth Lusca, TAG-22, Group G1006 | MITRE ATT&CK®, 1 July 2022, attack.mitre.org/groups/G1006/. 
 
