@@ -46,8 +46,8 @@ This strategy relies on the following assumptions:
 
 A blind spot will occur if any of the assumptions are violated. For instance, the following would not trip the alert:
 
-* If adversaries employ fileless UAC bypass techniques that do not involve modifying Windows Registry keys, the ADS may not detect these attempts.
-* Adversaries may obfuscate PowerShell commands to evade detection by the ADS, potentially bypassing its monitoring capabilities
+* If adversaries employ fileless UAC bypass techniques that do not involve modifying Windows Registry keys.
+* Adversaries may obfuscate PowerShell commands to evade detection by the ADS, potentially bypassing its monitoring capabilities.
 
 # False Positives
 False positives may occur due to legitimate changes by system administrators or software updates that modify the monitored registry key.
