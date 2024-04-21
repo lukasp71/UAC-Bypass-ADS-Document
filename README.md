@@ -7,6 +7,14 @@ This technique is categorized as Privilege Escalation and Defense Evasion within
 # Strategy Abstract
 The strategy aims to identify unauthorized modifications to critical registry keys associated with the fodhelper.exe utility, indicating potential attempts to bypass User Account Control (UAC) restrictions. It leverages Sysmon logs forwarded to Splunk for analysis.
 
+# Earth Lusca
+Earth Lusca is a suspected China-based espionage group that seems to be mostly financially motivated. Their targets span multiple countries including Australia, the US, Germany and cover a wide range of organizations such as government and educational institutions, media outlets, and gambling companies.
+
+While they use malware that is associated with other known China-based threat groups like APT41 and Winnti Group their operational tactics are considered separate.
+
+Their main point of entry comes from spear phishing emails containing malicious links or watering hole attacks. After their initial access to a system they used a few different tactics to keep a foothold in the system and elevate their privileges. One such way they have done this is by using a technique which utilizes the windows utility Fodhelper to gain elevated privileges.
+
+
 # Technical Content
 The fodhelper.exe utility is a legitimate Windows binary used for managing optional features in Windows. Attackers exploit this utility by manipulating specific registry keys to execute arbitrary code with elevated privileges, bypassing UAC restrictions. The alert monitors for changes to the HKCU:\Software\Classes\ms-settings\shell\open\command registry key, commonly abused by attackers for UAC bypass techniques.
 
