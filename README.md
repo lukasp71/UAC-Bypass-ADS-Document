@@ -37,7 +37,6 @@ Next a new registry value is created named DelegateExecute under the ms-settings
 
 ```
 Set-ItemProperty -Path "HKCU:\software\classes\ms-settings\shell\open\command" -Name "(default)" -Value "C:\Users\User\Desktop\123.exe"
-Start-Process "C:\Windows\System32\fodhelper.exe" -WindowStyle Hidden
 ```
 This command sets the value of the default property (default) under the ms-settings\shell\open\command registry key to the path of the previously created 123.exe file. By associating this file with the default command for opening certain types of files, this allows the attacker to launch the 123.exe executable with elevated privileges when fodhelper.exe is started.
 
